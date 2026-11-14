@@ -2,6 +2,11 @@
 -- Base de données : projet_qlmr
 -- ============================================================
 
+SET @user = 'USER';     -- A MODIFIER
+SET @pass = 'PASSWORD'; -- A MODIFIER
+
+SET @host = 'localhost';
+
 CREATE DATABASE IF NOT EXISTS projet_qlmr
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
@@ -58,13 +63,21 @@ CREATE TABLE suivre(
    FOREIGN KEY(id_utilisateur_1) REFERENCES Utilisateur(id_utilisateur) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- ------------------------------------------------------------
--- Utilisateur applicatif (à utiliser dans la connexion PDO)
--- Changer le mot de passe avant utilisation
--- ------------------------------------------------------------
+-- ---------------------------------
+-- Création utilisateur applicatif
+-- ---------------------------------
 
-CREATE USER IF NOT EXISTS 'qlmr_user'@'localhost' IDENTIFIED BY '2Djr!io89*SHJK2';
+SET @sql = CONCAT('CREATE USER IF NOT EXISTS ', QUOTE(@user), '@', QUOTE(@host),
+                  ' IDENTIFIED BY ', QUOTE(@pass));
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON projet_qlmr.* TO 'qlmr_user'@'localhost';
+-- Droits sur la base
+SET @sql = CONCAT('GRANT SELECT, INSERT, UPDATE, DELETE ON projet_qlmr.* TO ',
+                  QUOTE(@user), '@', QUOTE(@host));
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 FLUSH PRIVILEGES;

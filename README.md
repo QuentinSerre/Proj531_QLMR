@@ -23,8 +23,11 @@ projet_qlmr/
 │   │   └── dataset.sql            # jeu de données de test
 │   ├── src/
 │   │   ├── controllers/
+│   │   │   ├── BaseController.php     # controller parent mutualisant certaines fonctions protected
+│   │   │   ├── ExampleController.php  # modèle commenté de contrôleur (CRUD)
 │   │   │   └── UtilisateurController.php
 │   │   ├── models/
+│   │   │   ├── Example.php  # modèle commenté de model (Requêtes PDO)
 │   │   │   └── Utilisateur.php
 │   │   ├── Database.php           # connexion PDO (instance unique)
 │   │   └── Router.php             # associe méthode + URL à un contrôleur
@@ -136,6 +139,28 @@ http://localhost/<chemin_projet>/projet_qlmr/backend/public
 | GET     | `/api/utilisateur`      | Liste des utilisateurs  | 200              |
 | GET     | `/api/utilisateur/{id}` | Détail d'un utilisateur | 200, 404         |
 | POST    | `/api/utilisateur`      | Création d'un compte    | 201, 409, 422    |
+
+## Ajouter une nouvelle ressource
+
+Les dossiers `backend/templates/` contiennent un contrôleur et un model d'exemple, commentés, à dupliquer pour chaque nouvelle ressource (ex. `Quiz`).
+
+1. **Model** : copier `templates/Example.php` vers `src/models/Quiz.php`, renommer la classe en `Quiz`, puis adapter la table, les colonnes et les paramètres.
+2. **Contrôleur** : copier `templates/ExampleController.php` vers `src/controllers/QuizController.php`, renommer la classe en `QuizController`, puis adapter la validation et les champs transmis au model.
+3. **Routes** : déclarer les routes dans `public/index.php` :
+   ```php
+   $router->add('GET',    '/api/quiz',      [QuizController::class, 'getAll']);
+   $router->add('GET',    '/api/quiz/{id}', [QuizController::class, 'get']);
+   $router->add('POST',   '/api/quiz',      [QuizController::class, 'create']);
+   $router->add('PUT',    '/api/quiz/{id}', [QuizController::class, 'update']);
+   $router->add('DELETE', '/api/quiz/{id}', [QuizController::class, 'delete']);
+   ```
+4. **Tester** chaque route avec un client HTTP.
+
+Règles à respecter :
+
+- le nom du fichier est identique au nom de la classe (l'autoload en dépend, casse comprise) ;
+- le contrôleur ne contient aucun SQL, le model ne renvoie ni JSON ni code HTTP ;
+- toutes les requêtes SQL sont préparées, avec les colonnes listées explicitement (pas de `SELECT *`).
 
 ### Comptes du jeu de données
 
